@@ -1,0 +1,12 @@
+extends layout
+
+block content
+  //input#search(type="search", placeholder="Enter email text")
+  textarea#search(placeholder="Enter email text")
+  h2#results
+  div#loader(style="display:none;")
+  include template.html
+
+  script(src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js")
+  script(src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.0.0/handlebars.min.js")  
+  script(src="/javascripts/main.js")
