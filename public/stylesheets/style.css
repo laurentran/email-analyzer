@@ -7,6 +7,10 @@ a {
   color: #00B7FF;
 }
 
+p {
+    font-size: 150%;
+}
+
 #search {
   text-align: left;
   /*display: block;*/

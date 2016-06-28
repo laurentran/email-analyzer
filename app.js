@@ -34,7 +34,10 @@ app.get('/searching', function(req, res){
   var val = req.query.search;
   //console.log(val);
   var url = "https://ussouthcentral.services.azureml.net/workspaces/2d138b0890f844f2a1bf812e7e1e3280/services/03738f8ef25d44509d72ab6d7a8eb9dd/execute?api-version=2.0&details=true";
+  //var url = "https://ussouthcentral.services.azureml.net/workspaces/2d138b0890f844f2a1bf812e7e1e3280/services/eb991569ebfa40baa9a4f5cff3195466/execute?api-version=2.0&details=true"; //authoritative model
   var apiKey = '1f+rHoMaDmv7HlvSnKiOUfhF5/i7PzvufeakquYdBICjx9SuWXSRTy23IDkgouyglOMIMZUGOwLBEFClrDB+Dw==';
+  //var apiKey = 'JiPWhgYYsp6IBT0TMUH9jJumprZuCFs8bazhdteGaqFHaQ1FYi7/g1oGu0eFWNeuA+LBvDaaAdgdY1UVG7oG/g=='; //authoritative
+  
   
   //get individual sentences from email body
   var sentences = tokenize(val);
@@ -51,7 +54,17 @@ app.get('/searching', function(req, res){
       );
       if (scores.length === sentences.length) {
         console.log(scores);
-        res.send(scores);
+        
+        //now get score for whole email
+        var paramsFull = configureRequest(val, url, apiKey);
+        requests(paramsFull, -1, val, function(dataFull, indexFull, textFull) {
+          scores.push(
+            {index: indexFull, text:textFull, score:dataFull}
+          );
+          res.send(scores);
+        });
+        
+        // res.send(scores);
         //res.render('result', {email: val, score: scores});
       }
     });
@@ -65,7 +78,7 @@ function configureRequest(val, url, apiKey) {
     "Inputs": {
       "input1":
         {
-          "ColumnNames": ["sentiment_label", "tweet_text"],
+          "ColumnNames": ["label", "text"],
           "Values": [ [ "0", 0 ], [ "0", val ], ]
         },        
       },
@@ -86,23 +99,6 @@ function configureRequest(val, url, apiKey) {
   return params;
 };
 
-// function requests(params, index, text, callback) {
-//   request(params, function(error, response, body){
-//     var score = 0;
-//     if(error) {
-//       console.log(error);
-//       console.log("Error " + response.statusCode);
-//     } else {
-//       console.log(response.statusCode);
-//       score = JSON.parse(body)["Results"]["output1"]["value"]["Values"][1][2];
-//       //res.render('result', {email: val, score: score});
-//       console.log(score);
-//       score = Math.round(score * 100)/100;
-//     }
-//     callback(score, index, text);
-//   });
-// };
-
 function requests(params, index, text, callback) {
   request(params, function(error, response, body){
     var score = 0;
@@ -111,10 +107,10 @@ function requests(params, index, text, callback) {
       console.log("Error " + response.statusCode);
     } else {
       console.log(response.statusCode);
-      score = JSON.parse(body)["Results"]["output1"]["value"]["Values"][1][2];
+      score = JSON.parse(body)["Results"]["output1"]["value"]["Values"][1][1]; //was [1][2]
       //res.render('result', {email: val, score: score});
       console.log(score);
-      score = Math.round(score * 100)/100;
+      score = Math.round(score * 1000)/1000;
     }
     callback(score, index, text);
   });
