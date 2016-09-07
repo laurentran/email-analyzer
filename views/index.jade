@@ -2,9 +2,9 @@ extends layout
 
 block content
   textarea#search(placeholder="Enter email text")
+  div#loader(style="display:none;")
   h1#totalScore
   p#results
-  div#loader(style="display:none;")
   include template.html
 
   script(src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js")

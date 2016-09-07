@@ -7,12 +7,19 @@ var bodyParser = require('body-parser');
 var request = require('requestretry');
 
 var Tokenizer = require('sentence-tokenizer');
-var Promise = require('bluebird');
-
-//var routes = require('./routes/index');
-//var users = require('./routes/users');
-
 var app = express();
+
+var modelVersion = 'corpSpeak'; //flag
+var url;
+var apiKey;
+
+if (modelVersion === 'corpSpeak') {
+    url = "https://ussouthcentral.services.azureml.net/workspaces/2d138b0890f844f2a1bf812e7e1e3280/services/03738f8ef25d44509d72ab6d7a8eb9dd/execute?api-version=2.0&details=true";
+    apiKey = "1f+rHoMaDmv7HlvSnKiOUfhF5/i7PzvufeakquYdBICjx9SuWXSRTy23IDkgouyglOMIMZUGOwLBEFClrDB+Dw==";
+} else if (modelVersion === 'authoritative') {
+    url = "https://ussouthcentral.services.azureml.net/workspaces/2d138b0890f844f2a1bf812e7e1e3280/services/eb991569ebfa40baa9a4f5cff3195466/execute?api-version=2.0&details=true"; //authoritative model
+    apiKey = 'JiPWhgYYsp6IBT0TMUH9jJumprZuCFs8bazhdteGaqFHaQ1FYi7/g1oGu0eFWNeuA+LBvDaaAdgdY1UVG7oG/g=='; //authoritative
+} 
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -32,20 +39,14 @@ app.get('/', function(req, res) {res.render('index')});
 
 app.get('/searching', function(req, res){
   var val = req.query.search;
-  //console.log(val);
-  var url = "https://ussouthcentral.services.azureml.net/workspaces/2d138b0890f844f2a1bf812e7e1e3280/services/03738f8ef25d44509d72ab6d7a8eb9dd/execute?api-version=2.0&details=true";
-  //var url = "https://ussouthcentral.services.azureml.net/workspaces/2d138b0890f844f2a1bf812e7e1e3280/services/eb991569ebfa40baa9a4f5cff3195466/execute?api-version=2.0&details=true"; //authoritative model
-  var apiKey = '1f+rHoMaDmv7HlvSnKiOUfhF5/i7PzvufeakquYdBICjx9SuWXSRTy23IDkgouyglOMIMZUGOwLBEFClrDB+Dw==';
-  //var apiKey = 'JiPWhgYYsp6IBT0TMUH9jJumprZuCFs8bazhdteGaqFHaQ1FYi7/g1oGu0eFWNeuA+LBvDaaAdgdY1UVG7oG/g=='; //authoritative
-  
-  
+
   //get individual sentences from email body
   var sentences = tokenize(val);
   var scores = [];
   
   for (var i = 0; i < sentences.length; i++) {
     var sentence = sentences[i];
-    console.log(sentence);
+    //console.log(sentence);
     var params = configureRequest(sentence, url, apiKey);
     requests(params, i, sentence, function(data, index, text) {
       //scores.push(data);
@@ -53,7 +54,7 @@ app.get('/searching', function(req, res){
         {index:index, text:text, score:data}
       );
       if (scores.length === sentences.length) {
-        console.log(scores);
+        //console.log(scores);
         
         //now get score for whole email
         var paramsFull = configureRequest(val, url, apiKey);
@@ -103,14 +104,15 @@ function requests(params, index, text, callback) {
   request(params, function(error, response, body){
     var score = 0;
     if(error || response.statusCode !== 200) {
-      console.log(error);
+      //console.log(error);
       console.log("Error " + response.statusCode);
     } else {
-      console.log(response.statusCode);
+      //console.log(response.statusCode);
+      console.log(text);
       score = JSON.parse(body)["Results"]["output1"]["value"]["Values"][1][1]; //was [1][2]
       //res.render('result', {email: val, score: score});
       console.log(score);
-      score = Math.round(score * 1000)/1000;
+      score = Math.round(score * 10000)/10000;
     }
     callback(score, index, text);
   });
@@ -120,7 +122,7 @@ function tokenize(emailBody) {
   var tokenizer = new Tokenizer();
   tokenizer.setEntry(emailBody);
   var sentences = tokenizer.getSentences();
-  console.log(sentences);
+  //console.log(sentences);
   return sentences;
 };
 

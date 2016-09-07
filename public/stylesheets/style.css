@@ -71,3 +71,7 @@ p {
 .tooltip:hover .tooltiptext {
     visibility: visible;
 }
+
+#gauge {
+    position: absolute;
+}

@@ -1,4 +1,20 @@
 $(function(){
+    
+    var model = 'corpSpeak'; //flag
+    var thresholdHi;
+    var thresholdLo;
+    var label;
+    
+    if (model === 'corpSpeak') {
+        thresholdHi = 0.85;
+        thresholdLo = 0.15;
+        label = 'Corp Speak?'
+        
+    } else if (model === 'authoritative') {
+        thresholdHi = 0.7;
+        thresholdLo = 0.3;
+        label = 'Authoritative?'
+    }
 
     var source = $("#search-results").html();
     var dataTemplate = Handlebars.compile(source);
@@ -6,12 +22,12 @@ $(function(){
     
     Handlebars.registerHelper('getColor', function(score) {
        var result = "black";
-       if(score > 0.85) {
+       if(score > thresholdHi) {
            result = "red";
        } 
-    //    else if (score < 0.4) {
-    //        result = "green";
-    //    }
+       else if (score < thresholdLo) {
+           result = "green";
+       }
        return result;
     });
  
@@ -26,14 +42,14 @@ $(function(){
                     data.splice(0,1); //remove element that represents entire email (first element)
                     var isCorporate = "Neutral";
                     var color = "black";
-                    if (totalScore > 0.85) {
+                    if (totalScore > thresholdHi) {
                         isCorporate = "Yes";
                         color = "red";
-                    } else if (totalScore < 0.45) {
+                    } else if (totalScore < thresholdLo) {
                         isCorporate = "No"
                         color = "green";
                     }
-                    $('#totalScore').html("Corp Speak? <span style=color:" + color + ">" + isCorporate + "</span> (" + totalScore*100 + "%)");
+                    $('#totalScore').html(label + " <span style=color:" + color + ">" + isCorporate + "</span> (" + totalScore + ")");
                     $results.html( dataTemplate({resultsArray:data}) ); 
                     document.getElementById("loader").style.display = "none";
                 } else {
