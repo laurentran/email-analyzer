@@ -5,6 +5,9 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var request = require('requestretry');
+var dotenv = require('dotenv');
+
+dotenv.load();
 
 var Tokenizer = require('sentence-tokenizer');
 var app = express();
@@ -15,17 +18,17 @@ var apiKey;
 
 if (modelVersion === 'corpSpeak') {
     url = "https://ussouthcentral.services.azureml.net/workspaces/2d138b0890f844f2a1bf812e7e1e3280/services/03738f8ef25d44509d72ab6d7a8eb9dd/execute?api-version=2.0&details=true";
-    apiKey = "1f+rHoMaDmv7HlvSnKiOUfhF5/i7PzvufeakquYdBICjx9SuWXSRTy23IDkgouyglOMIMZUGOwLBEFClrDB+Dw==";
+    apiKey = process.env.MODEL1_KEY;
 } else if (modelVersion === 'authoritative') {
     url = "https://ussouthcentral.services.azureml.net/workspaces/2d138b0890f844f2a1bf812e7e1e3280/services/eb991569ebfa40baa9a4f5cff3195466/execute?api-version=2.0&details=true"; //authoritative model
-    apiKey = 'JiPWhgYYsp6IBT0TMUH9jJumprZuCFs8bazhdteGaqFHaQ1FYi7/g1oGu0eFWNeuA+LBvDaaAdgdY1UVG7oG/g=='; //authoritative
+    apiKey = process.env.MODEL2_KEY;
 } 
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-// uncomment after placing your favicon in /public
+// uncomment after placing your favicon in /pu`blic
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());

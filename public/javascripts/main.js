@@ -7,7 +7,7 @@ $(function(){
     
     if (model === 'corpSpeak') {
         thresholdHi = 0.85;
-        thresholdLo = 0.15;
+        thresholdLo = 0.3;
         label = 'Corp Speak?'
         
     } else if (model === 'authoritative') {
